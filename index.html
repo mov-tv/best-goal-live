@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta content="width=device-width, initial-scale=1" name="viewport"/>
-    <title>Shaka Player with JW Design</title>
+    <title>Shaka Player and JW Player Integration</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.1/shaka-player.compiled.js"></script>
     <script src="//content.jwplatform.com/libraries/SAHhwvZq.js"></script>
     <style>
@@ -41,7 +41,7 @@
     </div>
 
     <script>
-        // دالة لاستخراج المعلمات من الرابط
+        // دالة لاستخراج المعاملات من الرابط
         function getQueryParams() {
             const params = new URLSearchParams(window.location.search);
             return {
@@ -49,6 +49,78 @@
                 drmKey: params.get('drmkey'),
                 normal: params.get('normal')
             };
+        }
+
+        // دالة إعداد JW Player للفيديوهات العادية
+        function setupNormalPlayer(manifest) {
+            console.log('تشغيل فيديو عادي:', manifest);
+
+            const player = jwplayer("jwplayerDiv").setup({
+                file: manifest,
+                width: "100%",
+                height: "100%",
+                autostart: true,
+                skin: {
+                    name: "glow"
+                }
+            });
+
+            player.on('ready', () => {
+                player.setFullscreen(true);
+            });
+        }
+
+        // دالة إعداد Shaka Player للفيديوهات المحمية بـ DRM
+        async function setupDRMPlayer(manifest, drmKey) {
+            const [keyId, keyValue] = drmKey.split(':');
+            if (!keyId || !keyValue) {
+                console.error('صيغة drmkey غير صحيحة. يجب أن تكون على الشكل keyId:keyValue');
+                return;
+            }
+
+            const videoContainer = document.createElement('video');
+            videoContainer.controls = true;
+            videoContainer.style.display = 'none'; // إخفاء الفيديو لتجنب تداخل التصميم
+            document.body.appendChild(videoContainer);
+
+            const shakaPlayer = new shaka.Player(videoContainer);
+
+            shakaPlayer.configure({
+                drm: {
+                    clearKeys: {
+                        [keyId]: keyValue
+                    }
+                }
+            });
+
+            try {
+                await shakaPlayer.load(manifest);
+                console.log('تم تحميل الفيديو المحمي بـ DRM بنجاح.');
+
+                const player = jwplayer("jwplayerDiv").setup({
+                    file: manifest,
+                    width: "100%",
+                    height: "100%",
+                    type: "dash",
+                    autostart: true,
+                    drm: {
+                        clearkey: {
+                            keyId: keyId,
+                            key: keyValue
+                        }
+                    },
+                    skin: {
+                        name: "glow"
+                    }
+                });
+
+                player.on('ready', () => {
+                    player.setFullscreen(true);
+                });
+
+            } catch (error) {
+                console.error('حدث خطأ أثناء تحميل الفيديو المحمي:', error);
+            }
         }
 
         document.addEventListener('DOMContentLoaded', async () => {
@@ -61,77 +133,13 @@
 
             // إذا كان normal موجودًا، يتم تشغيل الفيديو العادي
             if (normal === 'true') {
-                console.log('تشغيل فيديو عادي:', manifest);
-
-                const player = jwplayer("jwplayerDiv").setup({
-                    file: manifest,
-                    width: "100%",
-                    height: "100%",
-                    autostart: true,
-                    skin: {
-                        name: "glow"
-                    }
-                });
-
-                player.on('ready', () => {
-                    player.setFullscreen(true);
-                });
-
+                setupNormalPlayer(manifest);
                 return;
             }
 
             // إذا كانت معلمات DRM موجودة، يتم تشغيل فيديو محمي بـ DRM
             if (drmKey) {
-                const [keyId, keyValue] = drmKey.split(':');
-                if (!keyId || !keyValue) {
-                    console.error('صيغة drmkey غير صحيحة. يجب أن تكون على الشكل keyId:keyValue');
-                    return;
-                }
-
-                const videoContainer = document.createElement('video');
-                videoContainer.controls = true;
-                videoContainer.style.display = 'none';
-                document.body.appendChild(videoContainer);
-
-                const shakaPlayer = new shaka.Player(videoContainer);
-
-                shakaPlayer.configure({
-                    drm: {
-                        clearKeys: {
-                            [keyId]: keyValue
-                        }
-                    }
-                });
-
-                try {
-                    await shakaPlayer.load(manifest);
-                    console.log('تم تحميل الفيديو المحمي بـ DRM بنجاح.');
-
-                    const player = jwplayer("jwplayerDiv").setup({
-                        file: manifest,
-                        width: "100%",
-                        height: "100%",
-                        type: "dash",
-                        autostart: true,
-                        drm: {
-                            clearkey: {
-                                keyId: keyId,
-                                key: keyValue
-                            }
-                        },
-                        skin: {
-                            name: "glow"
-                        }
-                    });
-
-                    player.on('ready', () => {
-                        player.setFullscreen(true);
-                    });
-
-                } catch (error) {
-                    console.error('حدث خطأ أثناء تحميل الفيديو المحمي:', error);
-                }
-
+                await setupDRMPlayer(manifest, drmKey);
                 return;
             }
 
