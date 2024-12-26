@@ -1,33 +1,54 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <script src="//content.jwplatform.com/libraries/SAHhwvZq.js"></script>
+    <title>Shaka Player Demo</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.1/shaka-player.compiled.js"></script>
     <style>
         body {
             margin: 0;
+            padding: 0;
+            background: #000;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background: #000;
         }
-
-        #player {
+        video {
             width: 80%;
             max-width: 1280px;
-            aspect-ratio: 16 / 9;
+            aspect-ratio: 16/9;
+            background: #000;
         }
     </style>
 </head>
 <body>
-    <div id="player"></div>
+    <video id="video" controls autoplay></video>
     <script>
-        jwplayer("player").setup({
-            file: "https://cors-anywhere.herokuapp.com/https://shls-mbc1na-prod-dub.shahid.net/out/v1/84ab37e99d6e4b16b33c6600f94f6ccb/index.m3u8",
-            width: "100%",
-            height: "100%",
-            autostart: true
-        });
+        async function initPlayer() {
+            // تحديد الفيديو
+            const video = document.getElementById('video');
+            const manifestUri = 'https://shls-mbc1na-prod-dub.shahid.net/out/v1/84ab37e99d6e4b16b33c6600f94f6ccb/index.m3u8';
+
+            // إنشاء مشغل Shaka
+            const player = new shaka.Player(video);
+
+            // إضافة تسجيل الأخطاء
+            player.addEventListener('error', onErrorEvent);
+
+            // تحميل الفيديو
+            try {
+                await player.load(manifestUri);
+                console.log('تم تشغيل الفيديو بنجاح!');
+            } catch (error) {
+                console.error('خطأ أثناء تحميل الفيديو:', error);
+            }
+        }
+
+        function onErrorEvent(event) {
+            console.error('خطأ:', event.detail);
+        }
+
+        document.addEventListener('DOMContentLoaded', initPlayer);
     </script>
 </body>
 </html>
