@@ -1,53 +1,33 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Video Player</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: #000;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
-
-    video {
-      max-width: 100%;
-      width: 100%;
-      height: auto;
-      border: 2px solid #fff;
-      border-radius: 10px;
-    }
-  </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.min.js"></script>
 </head>
 <body>
+    <video id="video" width="640" controls></video>
+    <script>
+        async function initPlayer() {
+            const manifestUri = "https://live-d-01-todtv-da.akamaized.net/variant/v1blackout/spo-hd-08-d/DASH_DASH/Live/channel(spo-hd-08)/manifest.mpd?vcfilter=9bec116b-9c76-4f83-81f6-77bc0444e16d&hdnts=st=1735327271~exp=1735341671~acl=/variant/v1blackout/spo-hd-08-d/*~id=153916ea-9ba7-4b04-8c2c-9c246fb5198e~data=4c43f6b1-b2d9-4ad8-b9b9-3e30b78b0a5a~hmac=5ff415259f19dd4766b8229924f75a6e9c0812ab1aad21c0fa63a536f3be41f2&hdcore=2.11.3";
 
-  <video id="video" controls></video>
+            const player = new shaka.Player(document.getElementById('video'));
+            
+            player.configure({
+                drm: {
+                    clearKeys: {
+                        '0a7934dddc3136a6922584b96c3fd1e5': '676e6d1dd00bfbe266003efaf0e3aa02'
+                    }
+                }
+            });
 
-  <script>
-    var video = document.getElementById('video');
-    var videoUrl = "https://live-d-01-todtv-da.akamaized.net/variant/v1blackout/spo-hd-08-d/DASH_DASH/Live/channel(spo-hd-08)/manifest.mpd?vcfilter=9bec116b-9c76-4f83-81f6-77bc0444e16d&hdnts=st=1735327271~exp=1735341671~acl=/variant/v1blackout/spo-hd-08-d/*~id=153916ea-9ba7-4b04-8c2c-9c246fb5198e~data=4c43f6b1-b2d9-4ad8-b9b9-3e30b78b0a5a~hmac=5ff415259f19dd4766b8229924f75a6e9c0812ab1aad21c0fa63a536f3be41f2&hdcore=2.11.3";
-    var key = "0a7934dddc3136a6922584b96c3fd1e5:676e6d1dd00bfbe266003efaf0e3aa02";  // This key is used to access the content securely
+            try {
+                await player.load(manifestUri);
+                console.log('Video loaded successfully');
+            } catch (error) {
+                console.error('Error loading video:', error);
+            }
+        }
 
-    if (Hls.isSupported()) {
-      var hls = new Hls();
-      hls.loadSource(videoUrl);
-      hls.attachMedia(video);
-      hls.on(Hls.Events.MANIFEST_PARSED, function () {
-        video.play();
-      });
-    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-      video.src = videoUrl;
-      video.addEventListener('loadedmetadata', function () {
-        video.play();
-      });
-    }
-  </script>
-
+        document.addEventListener('DOMContentLoaded', initPlayer);
+    </script>
 </body>
 </html>
