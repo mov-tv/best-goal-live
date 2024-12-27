@@ -1,25 +1,140 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar">
 <head>
-    <title>JW Player with DRM</title>
-    <script src="https://ssl.p.jwpcdn.com/player/v/8.36.2/jwplayer.js"></script>
+    <meta charset="UTF-8">
+    <title>مشغل Shaka Player مع دعم اختيار الجودات</title>
+    <!-- تضمين مكتبة Shaka Player -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/shaka-player.ui.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shaka-player/4.3.5/controls.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            direction: rtl;
+            text-align: right;
+            margin: 20px;
+        }
+        #video-container {
+            width: 100%;
+            max-width: 720px;
+            margin: auto;
+            position: relative;
+        }
+        video {
+            width: 100%;
+            height: auto;
+        }
+        #controls {
+            margin-top: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"] {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
 </head>
 <body>
-    <div id="video-player"></div>
+    <h1>مشغل Shaka Player مع دعم اختيار الجودات</h1>
+    <div id="video-container">
+        <video id="video" controls></video>
+    </div>
+    <div id="controls">
+        <label for="manifest-url">رابط الفيديو (manifest URL):</label>
+        <input type="text" id="manifest-url" placeholder="أدخل رابط الفيديو هنا">
+        <label for="key-id">معرّف المفتاح (Key ID):</label>
+        <input type="text" id="key-id" placeholder="أدخل معرّف المفتاح هنا">
+        <label for="key">المفتاح (Key):</label>
+        <input type="text" id="key" placeholder="أدخل المفتاح هنا">
+        <button onclick="loadVideo()">تشغيل الفيديو</button>
+    </div>
+
     <script>
-        jwplayer("video-player").setup({
-            file: "https://live-d-01-todtv-da.akamaized.net/variant/v1blackout/spo-hd-08-d/DASH_DASH/Live/channel(spo-hd-08)/manifest.mpd?vcfilter=9bec116b-9c76-4f83-81f6-77bc0444e16d&hdnts=st=1735327271~exp=1735341671~acl=/variant/v1blackout/spo-hd-08-d/*~id=153916ea-9ba7-4ad8-b9b9-3e30b78b0a5a~hmac=5ff415259f19dd4766b8229924f75a6e9c0812ab1aad21c0fa63a536f3be41f2",
-            drm: {
-                clearkey: {
-                    key: {
-                        "0a7934dddc3136a6922584b96c3fd1e5": "676e6d1dd00bfbe266003efaf0e3aa02"
+        // تهيئة Shaka Player
+        function initApp() {
+            // تثبيت polyfills
+            shaka.polyfill.installAll();
+            // التحقق من دعم المتصفح
+            if (shaka.Player.isBrowserSupported()) {
+                // المتصفح مدعوم
+                initPlayer();
+            } else {
+                // المتصفح غير مدعوم
+                alert('المتصفح لا يدعم Shaka Player.');
+            }
+        }
+
+        // تهيئة المشغل
+        function initPlayer() {
+            const video = document.getElementById('video');
+            const player = new shaka.Player(video);
+
+            // تهيئة الواجهة
+            const ui = new shaka.ui.Overlay(player, document.getElementById('video-container'), video);
+            const controls = ui.getControls();
+
+            // الاستماع للأخطاء
+            player.addEventListener('error', onErrorEvent);
+            controls.addEventListener('error', onErrorEvent);
+        }
+
+        // معالجة الأخطاء
+        function onErrorEvent(event) {
+            onError(event.detail);
+        }
+
+        function onError(error) {
+            console.error('خطأ: ', error);
+        }
+
+        // تحميل الفيديو
+        async function loadVideo() {
+            const manifestUri = document.getElementById('manifest-url').value;
+            const keyId = document.getElementById('key-id').value;
+            const key = document.getElementById('key').value;
+
+            if (!manifestUri) {
+                alert('يرجى إدخال رابط الفيديو.');
+                return;
+            }
+
+            const video = document.getElementById('video');
+            const player = new shaka.Player(video);
+
+            // تهيئة ClearKey إذا تم إدخال المفتاح
+            if (keyId && key) {
+                const clearKeys = {};
+                clearKeys[keyId] = key;
+                player.configure({
+                    drm: {
+                        clearKeys: clearKeys
                     }
-                }
-            },
-            width: "100%",
-            height: "100%",
-            autostart: true
-        });
+                });
+            }
+
+            try {
+                await player.load(manifestUri);
+                console.log('تم تحميل الفيديو بنجاح.');
+            } catch (error) {
+                onError(error);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', initApp);
     </script>
 </body>
 </html>
