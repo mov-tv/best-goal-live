@@ -46,6 +46,20 @@
         button:hover {
             background-color: #0056b3;
         }
+        #status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+        }
+        #status.success {
+            background-color: #d4edda;
+            color: #155724;
+        }
+        #status.error {
+            background-color: #f8d7da;
+            color: #721c24;
+        }
     </style>
 </head>
 <body>
@@ -62,6 +76,7 @@
         <input type="text" id="key" value="676e6d1dd00bfbe266003efaf0e3aa02">
         <button onclick="loadVideo()">تشغيل الفيديو</button>
     </div>
+    <div id="status"></div>
 
     <script>
         // تهيئة Shaka Player
@@ -74,7 +89,7 @@
                 initPlayer();
             } else {
                 // المتصفح غير مدعوم
-                alert('المتصفح لا يدعم Shaka Player.');
+                displayStatus('المتصفح لا يدعم Shaka Player.', 'error');
             }
         }
 
@@ -90,6 +105,9 @@
             // الاستماع للأخطاء
             player.addEventListener('error', onErrorEvent);
             controls.addEventListener('error', onErrorEvent);
+
+            // الاستماع لحدث التشغيل الناجح
+            player.addEventListener('trackschanged', onTracksChanged);
         }
 
         // معالجة الأخطاء
@@ -99,6 +117,12 @@
 
         function onError(error) {
             console.error('خطأ: ', error);
+            displayStatus('فشل في تحميل الفيديو. السبب: ' + error.message, 'error');
+        }
+
+        // عند تغيير المسارات (يدل على نجاح التحميل)
+        function onTracksChanged() {
+            displayStatus('تم تحميل الفيديو بنجاح.', 'success');
         }
 
         // تحميل الفيديو
@@ -108,7 +132,7 @@
             const key = document.getElementById('key').value;
 
             if (!manifestUri) {
-                alert('يرجى إدخال رابط الفيديو.');
+                displayStatus('يرجى إدخال رابط الفيديو.', 'error');
                 return;
             }
 
@@ -129,9 +153,18 @@
             try {
                 await player.load(manifestUri);
                 console.log('تم تحميل الفيديو بنجاح.');
+                displayStatus('تم تحميل الفيديو بنجاح.', 'success');
             } catch (error) {
                 onError(error);
             }
+        }
+
+        // عرض حالة التشغيل
+        function displayStatus(message, status) {
+            const statusDiv = document.getElementById('status');
+            statusDiv.textContent = message;
+            statusDiv.className = status;
+            statusDiv.style.display = 'block';
         }
 
         document.addEventListener('DOMContentLoaded', initApp);
