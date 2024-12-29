@@ -7,7 +7,6 @@
   <!-- إضافة رابط CSS لمكتبة Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
   <style>
-      /* إزالة الحافات وجعل الصفحة تملأ الشاشة */
       * {
           margin: 0;
           padding: 0;
@@ -23,8 +22,8 @@
           background-color: #000;
       }
       #player {
-          width: 100vw; /* عرض الشاشة بالكامل */
-          height: 100vh; /* ارتفاع الشاشة بالكامل */
+          width: 100vw;
+          height: 100vh;
       }
       .plyr {
           width: 100%;
@@ -67,7 +66,6 @@
 
             // تهيئة مشغل Plyr
             const player = new Plyr('#player', {
-                settings: ['quality'], // تفعيل إعدادات الجودة
                 controls: [
                     'play-large', // زر التشغيل الكبير
                     'play',
@@ -75,12 +73,8 @@
                     'current-time',
                     'mute',
                     'volume',
-                    'settings', // زر الإعدادات (يتضمن الجودة)
+                    'settings', // زر الإعدادات فقط
                 ],
-                quality: {
-                    default: 720, // الجودة الافتراضية
-                    options: [1080, 720, 480, 360, 240], // الخيارات المتاحة
-                },
             });
         } else {
             console.error('لم يتم العثور على معرف الفيديو في الرابط.');
