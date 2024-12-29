@@ -1,21 +1,21 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>مشغل الفيديو باستخدام Plyr</title>
-  <!-- إضافة رابط CSS لمكتبة Plyr -->
-  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تشغيل فيديو يوتيوب باستخدام JW Player</title>
+    <!-- تضمين مكتبة JW Player -->
+    <script src="https://cdn.jwplayer.com/libraries/ID_المكتبة.js"></script>
 </head>
 <body>
-  <!-- إضافة مشغل الفيديو -->
-  <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="TJ9yT0y-Ocw"></div>
+    <!-- عنصر لتضمين المشغل -->
+    <div id="my-video"></div>
 
-  <!-- إضافة رابط JavaScript لمكتبة Plyr -->
-  <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
-  <script>
-    // تهيئة مشغل Plyr
-    const player = new Plyr('#player');
-  </script>
+    <script type="text/javascript">
+        jwplayer("my-video").setup({
+            file: "https://www.youtube.com/watch?v=TJ9yT0y-Ocw",
+            type: "youtube"
+        });
+    </script>
 </body>
 </html>
