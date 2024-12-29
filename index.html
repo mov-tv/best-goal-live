@@ -67,11 +67,7 @@
 
             // تهيئة مشغل Plyr
             const player = new Plyr('#player', {
-                fullscreen: {
-                    enabled: true,
-                    fallback: true,
-                    iosNative: true,
-                },
+                settings: ['quality'], // تفعيل إعدادات الجودة
                 controls: [
                     'play-large', // زر التشغيل الكبير
                     'play',
@@ -79,10 +75,12 @@
                     'current-time',
                     'mute',
                     'volume',
-                    'captions',
-                    'settings',
-                    'fullscreen',
+                    'settings', // زر الإعدادات (يتضمن الجودة)
                 ],
+                quality: {
+                    default: 720, // الجودة الافتراضية
+                    options: [1080, 720, 480, 360, 240], // الخيارات المتاحة
+                },
             });
         } else {
             console.error('لم يتم العثور على معرف الفيديو في الرابط.');
