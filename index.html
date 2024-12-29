@@ -2,15 +2,21 @@
 <html lang="ar">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
   <title>مشغل الفيديو باستخدام Plyr</title>
   <!-- إضافة رابط CSS لمكتبة Plyr -->
   <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
   <style>
-      body, html {
+      /* إزالة الحافات وجعل الصفحة تملأ الشاشة */
+      * {
           margin: 0;
           padding: 0;
+          box-sizing: border-box;
+      }
+      body, html {
+          width: 100%;
           height: 100%;
+          overflow: hidden; /* منع التمرير */
           display: flex;
           justify-content: center;
           align-items: center;
@@ -20,9 +26,9 @@
           width: 100vw; /* عرض الشاشة بالكامل */
           height: 100vh; /* ارتفاع الشاشة بالكامل */
       }
-      .plyr--fullscreen {
-          width: 100vw !important;
-          height: 100vh !important;
+      .plyr {
+          width: 100%;
+          height: 100%;
       }
   </style>
 </head>
@@ -67,7 +73,7 @@
                     iosNative: true,
                 },
                 controls: [
-                    'play-large', // الزر الكبير للبدء
+                    'play-large', // زر التشغيل الكبير
                     'play',
                     'progress',
                     'current-time',
