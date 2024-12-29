@@ -3,19 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تشغيل فيديو يوتيوب باستخدام JW Player</title>
-    <!-- تضمين مكتبة JW Player -->
-    <script src="https://cdn.jwplayer.com/libraries/ID_المكتبة.js"></script>
+    <title>تشغيل فيديو يوتيوب باستخدام Plyr.io</title>
+    <!-- تضمين مكتبة Plyr.io -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
+    <style>
+        /* جعل المشغل يملأ الشاشة بالكامل */
+        body, html {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+        }
+        #player {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
     <!-- عنصر لتضمين المشغل -->
-    <div id="my-video"></div>
+    <div class="plyr__video-embed" id="player"></div>
 
-    <script type="text/javascript">
-        jwplayer("my-video").setup({
-            file: "https://www.youtube.com/watch?v=TJ9yT0y-Ocw",
-            type: "youtube"
-        });
+    <!-- تضمين مكتبة Plyr.io -->
+    <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+    <script>
+        // دالة لاستخراج رابط الفيديو من المعامل "url="
+        function getVideoUrlFromQuery() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('url');
+        }
+
+        // دالة لاستخراج معرف الفيديو من رابط يوتيوب
+        function getYouTubeVideoId(url) {
+            const regex = /(?:https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+            const match = url.match(regex);
+            return match ? match[1] : null;
+        }
+
+        // الحصول على رابط الفيديو من عنوان URL الموقع
+        const videoUrl = getVideoUrlFromQuery();
+
+        if (videoUrl) {
+            // استخراج معرف الفيديو
+            const videoId = getYouTubeVideoId(videoUrl);
+
+            if (videoId) {
+                // تهيئة المشغل
+                const player = new Plyr('#player', {
+                    sources: [
+                        {
+                            src: videoId,
+                            provider: 'youtube',
+                        },
+                    ],
+                });
+            } else {
+                console.error('لم يتم العثور على معرف الفيديو في الرابط.');
+            }
+        } else {
+            console.error('لم يتم العثور على رابط الفيديو في المعامل "url=".');
+        }
     </script>
 </body>
 </html>
