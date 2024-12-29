@@ -1,71 +1,21 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تشغيل فيديو يوتيوب باستخدام Plyr.io</title>
-    <!-- تضمين مكتبة Plyr.io -->
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
-    <style>
-        /* جعل المشغل يملأ الشاشة بالكامل */
-        body, html {
-            margin: 0;
-            padding: 0;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: #000;
-        }
-        #player {
-            width: 100%;
-            height: 100%;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>مشغل الفيديو باستخدام Plyr</title>
+  <!-- إضافة رابط CSS لمكتبة Plyr -->
+  <link rel="stylesheet" href="https://cdn.plyr.io/3.7.2/plyr.css" />
 </head>
 <body>
-    <!-- عنصر لتضمين المشغل -->
-    <div class="plyr__video-embed" id="player"></div>
+  <!-- إضافة مشغل الفيديو -->
+  <div id="player" data-plyr-provider="youtube" data-plyr-embed-id="TJ9yT0y-Ocw"></div>
 
-    <!-- تضمين مكتبة Plyr.io -->
-    <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
-    <script>
-        // دالة لاستخراج رابط الفيديو من المعامل "url="
-        function getVideoUrlFromQuery() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('url');
-        }
-
-        // دالة لاستخراج معرف الفيديو من رابط يوتيوب
-        function getYouTubeVideoId(url) {
-            const regex = /(?:https?:\/\/(?:www\.)?youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
-            const match = url.match(regex);
-            return match ? match[1] : null;
-        }
-
-        // الحصول على رابط الفيديو من عنوان URL الموقع
-        const videoUrl = getVideoUrlFromQuery();
-
-        if (videoUrl) {
-            // استخراج معرف الفيديو
-            const videoId = getYouTubeVideoId(videoUrl);
-
-            if (videoId) {
-                // تهيئة المشغل
-                const player = new Plyr('#player', {
-                    sources: [
-                        {
-                            src: videoId,
-                            provider: 'youtube',
-                        },
-                    ],
-                });
-            } else {
-                console.error('لم يتم العثور على معرف الفيديو في الرابط.');
-            }
-        } else {
-            console.error('لم يتم العثور على رابط الفيديو في المعامل "url=".');
-        }
-    </script>
+  <!-- إضافة رابط JavaScript لمكتبة Plyr -->
+  <script src="https://cdn.plyr.io/3.7.2/plyr.js"></script>
+  <script>
+    // تهيئة مشغل Plyr
+    const player = new Plyr('#player');
+  </script>
 </body>
 </html>
