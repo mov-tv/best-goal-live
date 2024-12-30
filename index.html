@@ -1,145 +1,132 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube Video Downloader</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.5;
-            margin: 0;
-            padding: 20px;
-            color: #333;
-            background-color: #f9f9f9;
-        }
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        }
+  <title>YouTube Video Downloader</title>
 
-        h1 {
-            text-align: center;
-            color: #444;
-        }
-
-        input[type="text"], button {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 16px;
-        }
-
-        button {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #218838;
-        }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-
-        table th, table td {
-            padding: 10px;
-            border: 1px solid #ddd;
-            text-align: left;
-        }
-
-        table th {
-            background-color: #f4f4f4;
-        }
-
-        a {
-            color: #007bff;
-            text-decoration: none;
-        }
-
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+  <!-- CSS -->
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+      font-family: sans-serif;
+    }
+    body {
+      background: white;
+    }
+    .container {
+      width: 80vmin;
+      position: absolute;
+      transform: translateX(-50%);
+      left: 50%;
+      top: 120px;
+      background-color: #ffffff;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    }
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+    }
+    h3 {
+      background-color: #e4e9fd;
+      text-align: center;
+      padding: 15px 0;
+      font-weight: 600;
+      margin-left: 60px;
+      color: #4d5bf9;
+    }
+    .tab-content {
+      background-color: #ffffff;
+      padding: 50px 40px;
+    }
+    .tab-content h4 {
+      font-size: 28px;
+      margin-bottom: 20px;
+      color: #000224;
+      font-weight: 600;
+    }
+    .tab-content p {
+      text-align: center;
+      line-height: 1.9;
+      margin-top: 15px;
+      font-size: 15px;
+    }
+    .link {
+      width: 99%;
+      height: 45px;
+      margin-top: 15px;
+      text-align: center;
+      border: 2px solid #FFC801;
+      border-radius: 5px;
+    }
+    .btn {
+      width: 100%;
+      color: #fff;
+      height: 45px;
+      margin: 15px 0 5px 0;
+      border-radius: 5px;
+      background: #FFC801;
+    }
+  </style>
 </head>
+
 <body>
-    <div class="container">
-        <h1>YouTube Video Downloader</h1>
-        <form method="post">
-            <input type="text" name="youtube-video-url" value="https://youtu.be/JKfEMRACG0c?si=8gJ7VFv23LRKQmAU" required>
-            <button type="submit" name="submit">Download Video</button>
-        </form>
-
-        <?php
-        if ($_SERVER["REQUEST_METHOD"] === "POST" && isset($_POST['youtube-video-url'])) {
-            $videoUrl = $_POST['youtube-video-url'];
-            $key = 'AIzaSyB0vrE7kz13WoJvC1qLI7ifPclhAodeFuI';
-
-            preg_match('%(?:youtube(?:-nocookie)?\\.com/(?:[^/]+/.+/|(?:v|e(?:mbed)?)/|.*[?&]v=)|youtu\\.be/)([^"&?/ ]{11})%i', $videoUrl, $match);
-            $youtubeVideoId = $match[1];
-
-            function getYoutubeVideoMeta($videoId, $key) {
-                $ch = curl_init();
-                $curlUrl = 'https://www.youtube.com/youtubei/v1/player?key=' . $key;
-                curl_setopt($ch, CURLOPT_URL, $curlUrl);
-                curl_setopt($ch, CURLOPT_ENCODING, 'gzip, deflate');
-                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-                curl_setopt($ch, CURLOPT_POST, 1);
-                $curlOptions = json_encode([
-                    "context" => [
-                        "client" => [
-                            "hl" => "en",
-                            "clientName" => "WEB",
-                            "clientVersion" => "2.20210721.00.00"
-                        ]
-                    ],
-                    "videoId" => $videoId
-                ]);
-                curl_setopt($ch, CURLOPT_POSTFIELDS, $curlOptions);
-                curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json']);
-                $curlResult = curl_exec($ch);
-                curl_close($ch);
-                return $curlResult;
-            }
-
-            $videoMeta = json_decode(getYoutubeVideoMeta($youtubeVideoId, $key));
-            if (isset($videoMeta->videoDetails)) {
-                $videoTitle = $videoMeta->videoDetails->title;
-                $videoFormats = $videoMeta->streamingData->formats;
-                echo "<h2>Video Title: $videoTitle</h2>";
-                echo "<table>";
-                echo "<tr><th>Quality</th><th>Type</th><th>Action</th></tr>";
-
-                foreach ($videoFormats as $format) {
-                    $quality = $format->qualityLabel ?? 'Unknown';
-                    $type = explode(";", explode("/", $format->mimeType ?? "video/mp4")[1])[0] ?? 'Unknown';
-                    $url = $format->url ?? '';
-
-                    echo "<tr>
-                            <td>$quality</td>
-                            <td>$type</td>
-                            <td><a href='$url' target='_blank'>Download</a></td>
-                          </tr>";
-                }
-
-                echo "</table>";
-            } else {
-                echo "<p>Failed to retrieve video details. Please check the URL.</p>";
-            }
-        }
-        ?>
+  <div class="container">
+    <div class="tabs">
+      <h3 class="active">Video</h3>
+      <h3>Thumbnail</h3>
     </div>
+    <div class="tab-content">
+      <div class="active">
+        <h1>YouTube Video Downloader</h1>
+        <p>Download videos, shorts , playlists from YouTube quickly and easily in HD quality</p>
+        <input type="text" class="link" placeholder="https://youtu.be/a-FX981WxOY?si=OqZ9oJhN-WgjCu10" />
+        <button class="btn" onclick="video()">Get</button>
+      </div>
+  
+      <div>
+        <h1>YouTube Video Thumbnail Downloader</h1>
+        <p>Download thumbnails from YouTube videos in HD and in JPG, PNG, or WEBP format</p>
+        <input type="text" class="link" placeholder="https://youtu.be/a-FX981WxOY?si=OqZ9oJhN-WgjCu10" />
+        <button class="btn" onclick="video()">Get</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript -->
+  <script>
+    let tabs = document.querySelectorAll(".tabs h3");
+    let tabContents = document.querySelectorAll(".tab-content div");
+
+    tabs.forEach((tab, index) => {
+      tab.addEventListener("click", () => {
+        tabContents.forEach((content) => {
+          content.classList.remove("active");
+        });
+        tabs.forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        tabContents[index].classList.add("active");
+        tabs[index].classList.add("active");
+      });
+    });
+
+    var link = document.querySelector('.link');
+    function video() {
+      if (link.value != "") {
+        if (link.value.indexOf("https://youtu.be/") != -1) {
+          var YTurl = link.value.replace("https://youtu.be/", "https://www.000tube.com/watch?v=");
+          window.open(YTurl, '_blank');
+        } else {
+          var YTurl = link.value.replace("you", "000");
+          window.open(YTurl, '_blank');
+        }
+      }
+    }
+  </script>
 </body>
 </html>
