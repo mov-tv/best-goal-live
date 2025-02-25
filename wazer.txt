@@ -1,1 +1,1 @@
-update="v2"
+update="V1.0.0"
